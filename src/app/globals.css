@@ -2,26 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Ivory paper, navy ink, brass accent */
+    --background: 40 33% 97%;
+    --foreground: 222 38% 14%;
+    --card: 40 30% 99%;
+    --card-foreground: 222 38% 14%;
+    --primary: 222 45% 16%;
+    --primary-foreground: 40 33% 96%;
+    --secondary: 38 24% 91%;
+    --secondary-foreground: 222 38% 14%;
+    --muted: 38 20% 92%;
+    --muted-foreground: 222 12% 38%;
+    --accent: 36 55% 33%;
+    --gold: 38 52% 64%;
+    --accent-foreground: 40 33% 97%;
+    --ink: 222 42% 11%;
+    --ink-foreground: 40 30% 93%;
+    --ink-muted: 222 14% 68%;
+    --destructive: 0 62% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 36 16% 84%;
+    --input: 36 16% 80%;
+    --ring: 36 55% 33%;
+    --radius: 0.25rem;
+  }
+
+  /* Public site: dark, Persona-inspired (charcoal, white, gold). Admin keeps the light theme above. */
+  .theme-dark {
+    --background: 228 9% 8%;        /* #131418 */
+    --foreground: 0 0% 98%;
+    --card: 228 8% 12%;             /* #1d1e22 */
+    --card-foreground: 0 0% 98%;
+    --primary: 38 52% 64%;          /* gold buttons */
+    --primary-foreground: 228 9% 8%;
+    --secondary: 228 8% 11%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 228 8% 14%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 38 52% 64%;
+    --accent-foreground: 228 9% 8%;
+    --gold: 38 52% 64%;
+    --ink: 228 8% 10%;
+    --ink-foreground: 0 0% 98%;
+    --ink-muted: 0 0% 64%;
+    --border: 228 6% 19%;
+    --input: 228 6% 24%;
+    --ring: 38 52% 64%;
+    --radius: 0.375rem;
+  }
+  .theme-dark { --font-display: var(--font-sans); }
+  .theme-dark .font-display { @apply font-bold tracking-[-0.02em]; }
+  body:has(.theme-dark) { background: hsl(228 9% 8%); }
+  .theme-dark :is(h1, h2, h3, h4) { @apply font-sans font-extrabold tracking-[-0.03em]; }
+  .theme-dark h3 { @apply font-bold tracking-[-0.01em]; }
+
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+  /* Decorative elements (ghost headings, bleeding images) must never make the page swipe sideways on mobile. `clip`, unlike `hidden`, keeps position: sticky working. */
+  html, body { overflow-x: clip; }
+  h1, h2, h3, h4 { @apply font-display text-balance; }
+  ::selection { background: hsl(var(--accent) / 0.25); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@layer components {
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.18em] text-accent; }
+  .hairline { @apply border-t border-border; }
+  .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background; }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  /* Article body rendered from Markdown */
+  .prose-h { @apply max-w-[68ch] text-lg leading-8 text-foreground/90; }
+  .prose-h > * + * { @apply mt-6; }
+  .prose-h h2 { @apply mt-12 text-2xl text-foreground; }
+  .prose-h h3 { @apply mt-10 text-xl text-foreground; }
+  .prose-h a { @apply text-accent underline underline-offset-4; }
+  .prose-h blockquote { @apply border-l-2 border-accent pl-6 font-display text-xl italic text-foreground; }
+  .prose-h ul { @apply list-disc pl-6; }
+  .prose-h ol { @apply list-decimal pl-6; }
+  .prose-h li + li { @apply mt-2; }
+  .prose-h img { @apply rounded-lg; }
+  .prose-h strong { @apply font-semibold text-foreground; }
 }

@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        SITE_URL: ${SITE_URL:-http://localhost:3457}   # set to https://your-domain before deploying
+    container_name: hakapoka
+    ports:
+      - "3457:3000"
+    env_file: .env.local
+    environment:
+      SITE_URL: ${SITE_URL:-http://localhost:3457}
+    volumes:
+      - ./data:/app/data   # publications, messages, uploads persist on the host
+    restart: unless-stopped

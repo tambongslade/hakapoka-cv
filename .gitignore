@@ -34,3 +34,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# CMS uploads and live data
+/data/uploads
+
+# Live site data (publications edited in /admin + contact messages with visitors' personal data).
+# Recreate with: node scripts/seed.mjs
+/data/db.json
+/data/db.json.tmp
