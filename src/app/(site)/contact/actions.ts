@@ -17,19 +17,32 @@ export async function sendMessage(_: ContactState, form: FormData): Promise<Cont
 
   const subject = fields.subject || "Autre";
 
-  // Always keep a copy in /admin/messages, so nothing is lost if the mail server is down.
-  const db = await readDb();
-  db.messages.unshift({ id: newId(), ...fields, subject, createdAt: new Date().toISOString(), read: false });
-  await writeDb(db);
-
-  if (!mailerConfigured()) {
-    console.warn("[contact] SMTP not configured — message saved to /admin/messages only, no e-mail sent.");
-    return { ok: true };
-  }
+  // Two independent channels: a copy in /admin/messages and an e-mail. The request succeeds if
+  // either works — on serverless hosts (Vercel) the filesystem is read-only, so e-mail is the one that counts.
+  let saved = false;
   try {
-    await sendContactMail({ ...fields, subject });
+    const db = await readDb();
+    db.messages.unshift({ id: newId(), ...fields, subject, createdAt: new Date().toISOString(), read: false });
+    await writeDb(db);
+    saved = true;
   } catch (err) {
-    console.error("[contact] e-mail delivery failed (message kept in /admin/messages):", err);
+    console.error("[contact] could not save the message to /admin/messages:", err);
+  }
+
+  let mailed = false;
+  if (mailerConfigured()) {
+    try {
+      await sendContactMail({ ...fields, subject });
+      mailed = true;
+    } catch (err) {
+      console.error("[contact] e-mail delivery failed:", err);
+    }
+  } else {
+    console.warn("[contact] SMTP not configured — no e-mail sent.");
+  }
+
+  if (!saved && !mailed) {
+    return { ok: false, error: "L'envoi a échoué. Merci de réessayer ou d'écrire directement à hakapoka@gmail.com.", fields };
   }
   return { ok: true };
 }
